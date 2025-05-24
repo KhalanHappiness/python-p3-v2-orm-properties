@@ -10,6 +10,7 @@ class Employee:
 
     def __init__(self, name, job_title, department_id, id=None):
         self.id = id
+        # Use the property setters by setting the attributes
         self.name = name
         self.job_title = job_title
         self.department_id = department_id
@@ -19,6 +20,45 @@ class Employee:
             f"<Employee {self.id}: {self.name}, {self.job_title}, " +
             f"Department ID: {self.department_id}>"
         )
+
+    # Define properties BEFORE they're used in __init__
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if isinstance(name, str) and len(name):
+            self._name = name
+        else:
+            raise ValueError(
+                "Name must be a non-empty string"
+            )
+
+    @property
+    def job_title(self):
+        return self._job_title
+
+    @job_title.setter
+    def job_title(self, job_title):
+        if isinstance(job_title, str) and len(job_title):
+            self._job_title = job_title
+        else:
+            raise ValueError(
+                "job_title must be a non-empty string"
+            )
+
+    @property
+    def department_id(self):
+        return self._department_id
+
+    @department_id.setter
+    def department_id(self, department_id):
+        if type(department_id) is int and Department.find_by_id(department_id):
+            self._department_id = department_id
+        else:
+            raise ValueError(
+                "department_id must reference a department in the database")
 
     @classmethod
     def create_table(cls):
@@ -98,7 +138,7 @@ class Employee:
     def instance_from_db(cls, row):
         """Return an Employee object having the attribute values from the table row."""
 
-        # Check the dictionary for  existing instance using the row's primary key
+        # Check the dictionary for existing instance using the row's primary key
         employee = cls.all.get(row[0])
         if employee:
             # ensure attributes match row values in case local instance was modified
@@ -142,7 +182,7 @@ class Employee:
         sql = """
             SELECT *
             FROM employees
-            WHERE name is ?
+            WHERE name = ?
         """
 
         row = CURSOR.execute(sql, (name,)).fetchone()
